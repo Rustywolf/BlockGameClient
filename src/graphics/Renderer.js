@@ -129,7 +129,7 @@ export default class Renderer {
 
         case "color":
           if (packet.id == this.game.id) {
-            this.game.player.setColor(packet.color);
+            //this.game.player.setColor(packet.color);
           } else {
             this.game.otherPlayers[packet.id] && this.game.otherPlayers[packet.id].setColor(packet.color);
           }

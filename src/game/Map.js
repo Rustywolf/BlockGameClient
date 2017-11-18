@@ -13,6 +13,10 @@ export default class Map {
   }
 
   setSize(width, depth, height) {
+    this.width = width;
+    this.depth = depth;
+    this.height = height;
+    
     this.blocks = new Array(width);
     for (let x = 0; x < width; x++) {
       this.blocks[x] = new Array(depth);
@@ -118,7 +122,7 @@ export default class Map {
       color = face;
       face = undefined;
     }
-    
+
     let block = this.getBlock(x, y, z, face);
     let faceArray = [X_PLUS, X_NEG, Y_PLUS, Y_NEG, Z_PLUS, Z_NEG];
 

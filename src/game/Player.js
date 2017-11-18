@@ -1,5 +1,5 @@
 import { VK_SHIFT, VK_SPACE, VK_W, VK_A, VK_S, VK_D } from 'input/Keys';
-import { MOVE, LEFT_BUTTON, RIGHT_BUTTON } from 'input/MouseActions';
+import { MOVE, LEFT_BUTTON, MIDDLE_BUTTON, RIGHT_BUTTON } from 'input/MouseActions';
 import { translate } from 'game/BlockFaces';
 import { Raycaster, Color } from 'three';
 
@@ -26,6 +26,7 @@ export default class Player {
 
     this.placeBlock = false;
     this.breakBlock = false;
+    this.cloneBlock = false;
     this.colorBlock = new Color(0xffffff);
 
     this.debug = {
@@ -78,15 +79,21 @@ export default class Player {
       }
     });
 
+    this.game.mouse.addHandler(MIDDLE_BUTTON, (action, e) => {
+      if (action == "up" && this.game.hasFocus()) {
+        this.cloneBlock = true;
+      }
+    });
+
     this.game.keyboard.addHandler(189, type => {
       if (type !== "down" || !this.game.hasFocus()) return;
-      //this.spectator = !this.spectator;
-      //this.yVelocity = 0;
+      this.spectator = !this.spectator;
+      this.yVelocity = 0;
     });
   }
 
   setColor(color) {
-    this.game.currentColor.style.backgroundColor = color;
+    this.game.currentColor.style.backgroundColor = (typeof color === "object") ? color.getStyle() : color;
     this.colorBlock = new Color(color);
   }
 
@@ -135,7 +142,7 @@ export default class Player {
     let origin = {x: this.x, y: this.y, z: this.z};
     let deltaMovement = {x: dx, y: dy, z: dz};
 
-    if (!this.spectator) this.game.map.collision(this, origin, deltaMovement);
+    /*if (!this.spectator)*/ this.game.map.collision(this, origin, deltaMovement);
     this.x += deltaMovement.x;
     this.y += deltaMovement.y;
     this.z += deltaMovement.z;
@@ -160,9 +167,15 @@ export default class Player {
     }
 
     if (this.y < -100) {
-      this.y = 100;
+      this.y = (this.y < 0) ? 100 : -100;
       this.x = this.map.width / 2;
       this.z = this.map.depth / 2;
+    } else if (Math.abs(this.x) > 100) {
+      this.x = this.x < 0 ? 100 : -100;
+    } else if (this.y > 100) {
+      this.y = -100;
+    } else if (Math.abs(this.z) > 100) {
+      this.z = this.z < 0 ? 100 : -100;
     }
 
     this.game.renderer.updateCameraPosition(this);
@@ -197,7 +210,17 @@ export default class Player {
       this.lookingAtFace = null;
     }
 
-    if (this.breakBlock) {
+    if (this.cloneBlock) {
+      if (this.lookingAt) {
+        this.setColor(this.lookingAt.color);
+        this.game.send({
+          action: "color",
+          color: this.lookingAt.color.getHex()
+        });
+      }
+
+      this.cloneBlock = false;
+    } else if (this.breakBlock) {
       if (this.lookingAt) {
         this.game.send({
           action: "break",
@@ -218,7 +241,7 @@ export default class Player {
             x: translated.x,
             y: translated.y,
             z: translated.z
-          })
+          });
           //this.map.setBlock(this.lookingAt.x, this.lookingAt.y, this.lookingAt.z, this.lookingAtFace, this.colorBlock);
         }
       }
