@@ -1,0 +1,161 @@
+<html>
+<head>
+  <script src="build/app.js"></script>
+  <style>
+    body {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+      margin: 0px;
+      border: 0px;
+    }
+
+    div {
+      margin: 0px;
+      border: 0px;
+    }
+
+    #content {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+      border: 0px;
+      background-color: black;
+    }
+
+    #color-picker-container {
+      visibility: hidden;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 310px;
+      height:280px;
+    }
+
+    #color-picker {
+      position: relative;
+      left: -50%;
+      top: -50%;
+      width: 310px;
+      height: 280px;
+      background-color: #15181e;
+      border: 2px solid white;
+    }
+
+    #slide {
+      display: inline-block;
+      position: relative;
+      left: 15px;
+      top: 10px;
+      width: 50px;
+      height: 230px;
+    }
+
+    #picker {
+      background-color: #ff0400;
+      display: inline-block;
+      position: relative;
+      left: 10px;
+      top: 10px;
+      width: 230px;
+      height: 230px;
+      margin: 0px;
+    }
+
+    #color-picker-submit {
+      display: inline-block;
+      width: 30px;
+      height: 20px;
+      position: relative;
+      left: 125px;
+      top: 10px;
+    }
+
+    #color-picker-button {
+      width: 70px;
+      height: 30px;
+      text-align: center;
+      background-color: #008CBA;
+      color: white;
+      text-decoration: none;
+      border: 2px solid white;
+    }
+
+    #current-color-container {
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      border: 2px solid white;
+      background-color: #ffffff;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    #current-color {
+      width: 96px;
+      height: 96px;
+      position: relative;
+      border: 2px solid #15181e;
+      background-color: #ffffff;
+    }
+
+    #crosshair {
+      top: 50%;
+      left: 50%;
+      position: absolute;
+    }
+
+    #dot {
+      position: relative;;
+      top: -50%;
+      left: -50%;
+      width: 5px;
+      height: 5px;
+      background-color: white;
+      margin: 0px;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <canvas id="canvas"></canvas>
+    <p id ="debug" style="color: white; font-size: 16; position: absolute; left: 5px; top: 40px; visibility: hidden">
+      X: <span id="xCoord">0</span><br />
+      Y: <span id="yCoord">0</span><br />
+      Z: <span id="zCoord">0</span><br />
+      Pitch: <span id="pitch">0</span><br />
+      Yaw: <span id="yaw">0</span>
+    </p>
+
+    <div id="color-picker-container">
+      <div id="color-picker">
+      <div id="picker">
+
+      </div>
+      <div id="slide">
+
+      </div>
+      <div id="color-picker-submit">
+        <button id="color-picker-button">Confirm</button>
+      </div>
+      </div>
+    </div>
+
+    <div id="current-color-container">
+      <div id="current-color">
+
+      </div>
+    </div>
+
+    <div id="crosshair">
+      <div id="dot">
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

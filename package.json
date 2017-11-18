@@ -1,0 +1,22 @@
+{
+  "name": "dungeoncrawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "debug": "webpack --config webpack.debug.js",
+    "prod": "webpack --config webpack.prod.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "three": "^0.87.1",
+    "webpack": "^3.6.0"
+  },
+  "dependencies": {}
+}
