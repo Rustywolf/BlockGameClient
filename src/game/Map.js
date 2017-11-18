@@ -16,7 +16,7 @@ export default class Map {
     this.width = width;
     this.depth = depth;
     this.height = height;
-    
+
     this.blocks = new Array(width);
     for (let x = 0; x < width; x++) {
       this.blocks[x] = new Array(depth);
@@ -65,7 +65,7 @@ export default class Map {
     this.group = this.game.renderer.createGroup();
 
     if (map.length <= 0 || map[0].length <= 0 || map[0][0].length <= 0) return;
-    console.log("test");
+    
     this.setSize(map.length, map[0].length, map[0][0].length);
 
     for (let x = 0; x < map.length; x++) {
@@ -194,8 +194,16 @@ export default class Map {
       return true;
     });
 
+    let collisions = [];
+
     for (let block of testing) {
-      block.collision(player, origin, delta);
+      collisions.push(block.collision(player, origin, delta));
+    }
+
+    if (collisions.length > 0) {
+      delta.x = collisions.sort((a, b) => Math.abs(a.x) - Math.abs(b.x))[0].x;
+      delta.y = collisions.sort((a, b) => Math.abs(a.y) - Math.abs(b.y))[0].y;
+      delta.z = collisions.sort((a, b) => Math.abs(a.z) - Math.abs(b.z))[0].z;
     }
   }
 

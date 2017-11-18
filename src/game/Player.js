@@ -39,10 +39,10 @@ export default class Player {
 
     this.hitbox = {
       x: .5,
-      y: .9,
+      y: .5,
       z: .5,
       halfX: .25,
-      halfY: .45,
+      halfY: .25,
       halfZ: .25,
     };
 
@@ -157,7 +157,6 @@ export default class Player {
     })
 
     if (deltaMovement.y != dy) {
-      //console.log("true");
       this.yVelocity = 0;
       if (deltaMovement.y > dy) {
         this.hasJump = true;

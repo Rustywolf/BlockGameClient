@@ -24,6 +24,7 @@ export default class Renderer {
     this.planeGeometry = new THREE.PlaneGeometry(1, 1);
 
     this.lastUpdate = Date.now();
+    this.frame = 0;
   }
 
   init() {
@@ -97,6 +98,16 @@ export default class Renderer {
     this.lastUpdate = now;
 
     requestAnimationFrame(this.render.bind(this));
+
+    if (delta > .250) {
+      // Unlikely to be frame lag -- skip frame to prevent weird physics
+      // Look into better solution for this in the future
+      return;
+    }
+
+    this.frame++;
+    //console.log(this.frame);
+
     if (this.game.stats) this.game.stats.begin();
 
     for (let packet of this.game.packets) {

@@ -147,151 +147,116 @@ export default class Block {
   }
 
   collision(player, origin, delta) {
-    if (!this.collides) return;
-
-    let to = {
-      x: origin.x + delta.x,
-      y: origin.y + delta.y,
-      z: origin.z + delta.z
+    let ret = {
+      x: delta.x,
+      y: delta.y,
+      z: delta.z
     };
 
-    let positiveDeltaX = delta.x >= 0;
-    let positiveDeltaY = delta.y >= 0;
-    let positiveDeltaZ = delta.z >= 0;
+    if (!this.collides) return ret;
 
-    let prevCollideX = origin.x + (delta.x > 0 ? -1 : 1) * player.hitbox.halfX;
-    let prevCollideY = origin.y + (delta.y > 0 ? -1 : 1) * player.hitbox.halfY;
-    let prevCollideZ = origin.z + (delta.z > 0 ? -1 : 1) * player.hitbox.halfZ;
+    let to = {
+      x: (origin.x + delta.x + (delta.x < 0 ? -1 : 1) * player.hitbox.halfX),
+      y: (origin.y + delta.y + (delta.y < 0 ? -1 : 1) * player.hitbox.halfY),
+      z: (origin.z + delta.z + (delta.z < 0 ? -1 : 1) * player.hitbox.halfZ)
+    };
 
-    let overlapX = !(prevCollideX < this.x || prevCollideX > this.x + 1);
-    let overlapY = !(prevCollideY < this.y || prevCollideY > this.y + 1);
-    let overlapZ = !(prevCollideZ < this.z || prevCollideZ > this.z + 1);
+    if ((to.x < this.x || to.x > this.x + 1) &&
+        (to.y < this.y || to.y > this.y + 1) &&
+        (to.z < this.z || to.z > this.z + 1)) {
+
+      return ret;
+    }
 
     let handleX = false;
     let handleY = false;
     let handleZ = false;
 
-    let face = -1;
-    if (overlapX && overlapY && !overlapZ && delta.z != 0) { // Collides in Z direction
-      handleZ = true;
-    } else if (overlapX && !overlapY && overlapZ && delta.y != 0) { // Collides in Y direction
-      handleY = true;
-      } else if (!overlapX && overlapY && overlapZ && delta.x != 0) { // Collides in X direction
-      handleX = true;
-    } else { // Collides diagonally
-      let depthX = Math.abs(positiveDeltaX ? this.x - to.x - player.hitbox.halfX : this.x + 1 - to.x + player.hitbox.halfX); //Math.abs(this.x + 0.5 - to.x + (delta.x > 0 ? -1 : 1) * player.hitbox.halfX);
-      let depthY = Math.abs(positiveDeltaY ? this.y - to.y - player.hitbox.halfY : this.y + 1 - to.y + player.hitbox.halfY);
-      let depthZ = Math.abs(positiveDeltaZ ? this.z - to.z - player.hitbox.halfZ : this.z + 1 - to.z + player.hitbox.halfZ);
+    let destinationX = (delta.x < 0) ? this.x + 1 : this.x;
+    let destinationY = (delta.y < 0) ? this.y + 1 : this.y;
+    let destinationZ = (delta.z < 0) ? this.z + 1 : this.z;
 
-      if (delta.z < 0 && this.x == 8 && this.y == 5 && this.z == 6) console.log(depthX + ":" + depthY + ":" + depthZ);
+    let travelledX = destinationX - to.x;
+    let travelledY = destinationY - to.y;
+    let travelledZ = destinationZ - to.z;
 
-      let valueArray = [{
+    let magnitude = Math.sqrt(delta.x*delta.x + delta.y*delta.y + delta.z*delta.z);
+    if (magnitude === 0) return ret;
+    let vector = {
+      x: delta.x / magnitude,
+      y: delta.y / magnitude,
+      z: delta.z / magnitude
+    };
+
+    let steps = [];
+
+    if (delta.x != 0) {
+      steps.push({
         name: "x",
-        face: positiveDeltaX ? X_NEG : X_PLUS,
-        depth: depthX,
-        delta: delta.x,
-        handle: () => { handleX = true; }
-      }, {
+        handle: () => handleX = true,
+        steps: -1 * travelledX / vector.x //flip sign for positive steps required
+      });
+    }
+
+    if (delta.y != 0) {
+      steps.push({
         name: "y",
-        face: positiveDeltaY ? Y_NEG : Y_PLUS,
-        depth: depthY,
-        delta: delta.y,
-        handle: () => { handleY = true; }
-      }, {
+        handle: () => handleY = true,
+        steps: -1 * travelledY / vector.y
+      });
+    }
+
+    if (delta.z != 0) {
+      steps.push({
         name: "z",
-        face: positiveDeltaZ ? Z_NEG : Z_PLUS,
-        depth: depthZ,
-        delta: delta.z,
-        handle: () => { handleZ = true; }
-      }];
-
-      let sortedArray = [];
-
-      if (!overlapX && !overlapY && overlapZ) { // Colliding in X & Y
-        sortedArray = [valueArray[0], valueArray[1]];
-      } else if (!overlapX && overlapY && !overlapZ) { // Colliding in X & Z
-        sortedArray = [valueArray[0], valueArray[2]];
-      } else if (overlapX && !overlapY && !overlapZ) { // Colliding in Y & Z
-        sortedArray = [valueArray[1], valueArray[2]];
-      } else {
-        sortedArray = valueArray;
-      }
-      //console.log(sortedArray);
-      sortedArray.sort((a, b) => a.delta + a.depth - b.delta + b.depth);
-
-      let solid = [];
-      let handled = false;
-
-      for (let entry of sortedArray) {
-        let neighbour = this.map.getBlock(this.x, this.y, this.z, entry.face);
-
-        if (!neighbour || !neighbour.collides) {
-          entry.handle();
-          handled = true;
-          break;
-        } else {
-          solid.push(entry.handle);
-        }
-      }
-
-      if (!handled) {
-        for (let handler of solid) {
-          handler();
-        }
-      }
-
-      if (delta.z < 0 && this.x == 8 && this.y == 5 && this.z == 6) console.log(handleX + ":" + handleY + ":" + handleZ);
+        handle: () => handleZ = true,
+        steps: -1 * travelledZ / vector.z
+      });
     }
 
-    //console.log(handleX + ":" + handleY + ":" + handleZ);
+    if (steps.length > 0) {
+      steps.sort((a, b) => a.steps - b.steps)[0].handle();
+    }
 
-    if (handleX && delta.x != 0) {
-      if (positiveDeltaX) {
-        face = X_NEG;
-      } else {
-        face = X_PLUS;
-      }
+    let face = -1;
+
+    if (handleX) {
+      face = (delta.x < 0) ? X_PLUS : X_NEG;
 
       let neighbour = this.map.getBlock(this.x, this.y, this.z, face);
       if (!neighbour || !neighbour.collides) {
-        delta.x = this.x - origin.x + (delta.x > 0 ? -1 : 1) * player.hitbox.halfX;
-        if (!positiveDeltaX) {
-          delta.x += 1;
+        ret.x = this.x - origin.x + (delta.x > 0 ? -1 : 1) * player.hitbox.halfX;
+        if (delta.x < 0) {
+          ret.x += 1;
         }
       }
     }
 
-    if (handleY && delta.y != 0) {
-      if (positiveDeltaY) {
-        face = Y_NEG;
-      } else {
-        face = Y_PLUS;
-      }
+    if (handleY) {
+      face = (delta.y < 0) ? Y_PLUS : Y_NEG;
 
       let neighbour = this.map.getBlock(this.x, this.y, this.z, face);
       if (!neighbour || !neighbour.collides) {
-        delta.y = this.y - origin.y + (delta.y > 0 ? -1 : 1) * player.hitbox.halfY;
-        if (!positiveDeltaY) {
-          delta.y += 1;
+        ret.y = this.y - origin.y + (delta.y > 0 ? -1 : 1) * player.hitbox.halfY;
+        if (delta.y < 0) {
+          ret.y += 1;
         }
       }
     }
 
-    if(handleZ && delta.z != 0) {
-      if (positiveDeltaZ) {
-        face = Z_NEG;
-      } else {
-        face = Z_PLUS;
-      }
+    if(handleZ) {
+      face = (delta.z < 0) ? Z_PLUS : Z_NEG;
 
       let neighbour = this.map.getBlock(this.x, this.y, this.z, face);
       if (!neighbour || !neighbour.collides) {
-        delta.z = this.z - origin.z + (delta.z > 0 ? -1 : 1) * player.hitbox.halfZ;
-        if (!positiveDeltaZ) {
-          delta.z += 1;
+        ret.z = this.z - origin.z + (delta.z > 0 ? -1 : 1) * player.hitbox.halfZ;
+        if (delta.z < 0) {
+          ret.z += 1;
         }
       }
     }
+
+    return ret;
   }
 
   groupFaces() {
