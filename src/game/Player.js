@@ -39,10 +39,10 @@ export default class Player {
 
     this.hitbox = {
       x: .5,
-      y: .5,
+      y: .9,
       z: .5,
       halfX: .25,
-      halfY: .25,
+      halfY: .45,
       halfZ: .25,
     };
 
