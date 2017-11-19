@@ -22,7 +22,7 @@ export default class Player {
     this.hasJump = true;
     this.jumpVelocity = this.gravity / 2;
 
-    this.spectator = true;
+    this.spectator = false;
 
     this.placeBlock = false;
     this.breakBlock = false;
