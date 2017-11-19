@@ -51,15 +51,26 @@ export default class Game {
       }
     );
 
+    this.connectingDiv = document.getElementById("connecting");
+    this.connectingDivCount = 0;
+    this.connectingDivLoopId = setInterval(() => {
+      console.log(this.connectingDivCount);
+      this.connectingDivCount++;
+      this.connectingDivCount %= 3;
+      this.connectingDiv.innerHTML = new Array(this.connectingDivCount + 2).join(".");
+    }, 333);
+
     this.packets = [];
     this.connected = false;
     this.socket = new WebSocket("wss://server.w0lf.me:6745");
-    this.socket.onopen = () => this.connected = true;
     this.socket.onmessage = (msg) => {
       if (msg.type == "message" && typeof msg.data === "string") {
         let packet = JSON.parse(msg.data);
         if (packet.action == "connect") {
-          console.log(packet.id);
+          clearInterval(this.connectingDivLoopId);
+          this.connectingDiv.style.visibility = "hidden";
+          this.crosshair.style.visibility = "initial";
+
           this.id = packet.id;
           this.player.setColor(packet.color);
           this.player.x = packet.x;
@@ -72,12 +83,15 @@ export default class Game {
           this.renderer.init();
 
           this.map.load(packet.map);
-          console.log("abc");
+
+          this.connected = true;
         } else {
           this.packets.push(packet);
         }
       }
     }
+
+
   }
 
   hasFocus() {
@@ -85,6 +99,8 @@ export default class Game {
   }
 
   onPointerLockChange() {
+    if (!this.connected) return;
+
     if (this.hasFocus()) {
       this.colorPickerContainer.style.visibility = "hidden";
       this.crosshair.style.visibility = "initial";
