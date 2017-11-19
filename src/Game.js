@@ -54,7 +54,6 @@ export default class Game {
     this.connectingDiv = document.getElementById("connecting");
     this.connectingDivCount = 0;
     this.connectingDivLoopId = setInterval(() => {
-      console.log(this.connectingDivCount);
       this.connectingDivCount++;
       this.connectingDivCount %= 3;
       this.connectingDiv.innerHTML = new Array(this.connectingDivCount + 2).join(".");
