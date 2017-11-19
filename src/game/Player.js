@@ -227,13 +227,15 @@ export default class Player {
           y: this.lookingAt.y,
           z: this.lookingAt.z
         });
-        //this.map.setBlock(this.lookingAt.x, this.lookingAt.y, this.lookingAt.z, null);
       }
 
       this.breakBlock = false;
     } else if (this.placeBlock) {
-      if (this.lookingAt) {
-        if (this.lookingAt) {
+      if (this.lookingAt && this.lookingAtFace) {
+        if (!(this.x + this.hitbox.halfX * 1.1 >= this.lookingAt.x && this.x - (this.hitbox.halfX * 1.1) <= this.lookingAt.x + 1) ||
+            !(this.y + this.hitbox.halfY * 1.1 >= this.lookingAt.y && this.y - (this.hitbox.halfY * 1.1) <= this.lookingAt.y + 1) ||
+            !(this.z + this.hitbox.halfZ * 1.1 >= this.lookingAt.z && this.z - (this.hitbox.halfZ * 1.1) <= this.lookingAt.z + 1)) {
+
           let translated = translate(this.lookingAt.x, this.lookingAt.y, this.lookingAt.z, this.lookingAtFace);
           this.game.send({
             action: "place",
@@ -241,7 +243,6 @@ export default class Player {
             y: translated.y,
             z: translated.z
           });
-          //this.map.setBlock(this.lookingAt.x, this.lookingAt.y, this.lookingAt.z, this.lookingAtFace, this.colorBlock);
         }
       }
 
